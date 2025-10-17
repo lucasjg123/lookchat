@@ -1,0 +1,47 @@
+# Node modules
+node_modules/
+
+# Log files
+*.log
+
+# NPM package lock
+package-lock.json
+
+# .env file with environment variables
+.env
+
+# OS files
+.DS_Store
+
+# IDE and editor files
+.vscode/
+.idea/
+
+# Coverage directory for testing
+coverage/
+
+#front end
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
