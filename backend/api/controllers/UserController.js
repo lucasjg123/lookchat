@@ -5,7 +5,7 @@ export class UserController {
 
   register = async (req, res) => {
     // we register the user
-    const result = await this.model.register(req.validatedData);
+    const result = await this.model.register(req.validatedBody);
     if (result.error) return res.status(400).json(result);
 
     return res.status(201).json(result);
@@ -15,7 +15,7 @@ export class UserController {
   // si existe .error lanzo eso como res y listo
 
   login = async (req, res) => {
-    const result = await this.model.login(req.validatedData);
+    const result = await this.model.login(req.validatedBody);
     if (result.error) return res.status(400).json(result);
 
     return res.status(200).json(result); // 200 para una respuesta exitosa

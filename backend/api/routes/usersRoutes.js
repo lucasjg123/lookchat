@@ -5,19 +5,19 @@ import { validate } from '../middlewares/validate.js';
 import {
   validateUserLogin,
   validateUserRegister,
-} from '../../helpers/zodUsers.js';
+} from '../../helpers/zod/zodUsers.js';
 
 export const UsersRouter = (model) => {
-  const controlador = new UserController(model);
+  const controller = new UserController(model);
 
   const usersRouter = Router();
   // definimos las rutas con middleware de validacion con schema personalizado
   usersRouter.post(
     '/register',
     validate(validateUserRegister),
-    controlador.register
+    controller.register
   );
-  usersRouter.post('/login', validate(validateUserLogin), controlador.login);
+  usersRouter.post('/login', validate(validateUserLogin), controller.login);
 
   return usersRouter;
 };
