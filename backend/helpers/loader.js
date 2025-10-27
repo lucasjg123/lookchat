@@ -14,4 +14,7 @@ export function loaderApp(app) {
   app.use('/api/users', UsersRouter(UserModel));
   app.use('/api/chats', ChatsRouter(ChatModel));
   app.use('/api/messages', MessagesRouter(MessageModel));
+  app.get('/asd', (req, res) => {
+    res.json({ message: 'hola' });
+  });
 }

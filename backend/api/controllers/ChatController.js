@@ -14,7 +14,7 @@ export class ChatController {
 
   getByUserID = async (req, res) => {
     try {
-      const chats = await this.model.getByUserID(req.validatedParams.id);
+      const chats = await this.model.getByUserID(req.params.id);
       res.status(200).json({ chats });
     } catch (error) {
       return res.status(500).json({ error: 'Failed to get chats' });

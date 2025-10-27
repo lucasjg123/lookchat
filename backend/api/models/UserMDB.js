@@ -1,6 +1,7 @@
 import { model, Schema } from 'mongoose';
 import bcrypt from 'bcrypt';
 import { createAccessToken, createRefreshToken } from '../../helpers/jwt.js';
+import { AppError } from '../../helpers/errors.js';
 
 // ✅ Definición del esquema con índices únicos
 const userSchema = new Schema(
@@ -29,19 +30,24 @@ export class UserModel {
   static async register(user) {
     const { name, mail, password } = user;
 
-    const userExist = await User.findOne({
-      $or: [{ name }, { mail }],
-    });
-    if (userExist) return { error: 'user duplicated' };
-
     try {
+      const userExist = await User.findOne({
+        $or: [{ name }, { mail }],
+      });
+      if (userExist) {
+        // console.error('Error: user duplicated');
+        throw new AppError('user already exists', 409);
+      }
+
       const hashedPassword = await bcrypt.hash(password, 10);
       const userSave = new User({ name, mail, password: hashedPassword });
       await userSave.save();
       return { message: 'user created' };
-    } catch (e) {
-      console.error('Error creating user:', e);
-      return { error: 'error creating user' };
+    } catch (error) {
+      // console.error('Error creating user:', error);
+      // ✅ Si es AppError, lo volvemos a lanzar tal cual
+      if (error instanceof AppError) throw error;
+      throw new Error('Failed to register user');
     }
   }
 
@@ -53,10 +59,17 @@ export class UserModel {
       const userExist = await User.findOne({
         $or: [{ name }, { mail }],
       });
-      if (!userExist) return { error: 'user not found' };
+
+      if (!userExist) {
+        // console.error('Error: user not found');
+        throw new AppError('user not found', 401);
+      }
 
       const isMatch = await bcrypt.compare(password, userExist.password);
-      if (!isMatch) return { error: 'invalid credentials' };
+      if (!isMatch) {
+        // console.error('Error: invalid password');
+        throw new AppError('invalid password', 401);
+      }
 
       const accessToken = createAccessToken(userExist);
       const refreshToken = createRefreshToken(userExist);
@@ -68,9 +81,11 @@ export class UserModel {
         accessToken,
         refreshToken,
       };
-    } catch (e) {
-      console.error('Error logging in:', e);
-      return { error: 'error logging user' };
+    } catch (error) {
+      // console.error('Error login user:', error);
+      // ✅ Si es AppError, lo volvemos a lanzar tal cual
+      if (error instanceof AppError) throw error;
+      throw new Error('Failed to login user');
     }
   }
 }
