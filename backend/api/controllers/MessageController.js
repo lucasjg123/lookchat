@@ -5,8 +5,10 @@ export class MessageController {
 
   create = async (req, res) => {
     try {
-      const newMsg = await this.model.create(req.validatedBody);
-      return res.status(201).json(newMsg);
+      let newMsg = req.validatedBody;
+      newMsg.sender = req.user.id;
+      msgCreated = await this.model.create(newMsg);
+      return res.status(201).json(msgCreated);
     } catch {
       return res.status(500).json({ error: 'Failed to save message' });
     }
@@ -15,7 +17,7 @@ export class MessageController {
   getByChatID = async (req, res) => {
     try {
       const messages = await this.model.getByChatID(req.params.id); // ver esto de validar y del .id
-      res.status(200).json({ messages });
+      res.status(200).json(messages);
     } catch (error) {
       return res.status(500).json({ error: 'Failed to get messages' });
     }

@@ -88,4 +88,15 @@ export class UserModel {
       throw new Error('Failed to login user');
     }
   }
+
+  // Función para obtener usuarios basada en un objeto de filtro dinámico
+  static async get(user) {
+    try {
+      // Realiza la búsqueda en la base de datos con los filtros proporcionados
+      const users = await User.find(user);
+      return users;
+    } catch (error) {
+      throw new Error('Error al obtener usuarios');
+    }
+  }
 }

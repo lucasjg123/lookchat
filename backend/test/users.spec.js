@@ -16,7 +16,7 @@ afterAll(async () => {
   await User.deleteMany({});
   await mongoose.connection.close(); // cierra la conexión al final
 });
-
+// describe('', ()=>{})
 describe('POST /api/users/register', () => {
   const endpoint = '/api/users/register';
 
@@ -127,7 +127,7 @@ describe('POST /api/users/register', () => {
   });
 });
 
-describe('POST /api/uses/login', () => {
+describe('POST /api/users/login', () => {
   const endpoint = '/api/users/login';
   const plainPassword = 'asldkfjaslkf';
   const user = {
@@ -140,7 +140,7 @@ describe('POST /api/uses/login', () => {
   beforeAll(async () => {
     await User.deleteMany({});
     const hashedPassword = await bcrypt.hash(plainPassword, 10);
-    await User.create({ ...user, password: hashedPassword });
+    await User.create({ ...user, password: hashedPassword }); // puedo hacerlo mediante el /register y listo
   });
 
   let res;
@@ -148,7 +148,6 @@ describe('POST /api/uses/login', () => {
     res = await req(app).post(endpoint).send(user);
   });
 
-  // describe('', ()=>{})
   describe('when sending a user registered with valid data', () => {
     // test('should respond with', ()=>{})
     test('should responds with status 200 and JSON content', () => {

@@ -38,6 +38,17 @@ export class ChatModel {
     }
   }
 
+  static async getOneByUsersID(usersID) {
+    try {
+      return Chat.findOne({
+        type: 'private',
+        users: { $all: usersID, $size: 2 },
+      });
+    } catch (error) {
+      throw new Error('Failed to get chat');
+    }
+  }
+
   static async getByUserID(userId) {
     try {
       return Chat.find({ users: userId }).sort({ updatedAt: -1 }).limit(10);

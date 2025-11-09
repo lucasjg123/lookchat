@@ -5,12 +5,12 @@ import { validate } from '../middlewares/validate.js';
 // validadores xd
 import { validateChat } from '../../helpers/zod/zodChats.js';
 
-export const ChatsRouter = (model) => {
-  const controller = new ChatController(model);
+export const ChatsRouter = (model, modelUser) => {
+  const controller = new ChatController(model, modelUser);
   const chatsRouter = Router();
 
   chatsRouter.post('/', validate(validateChat), controller.create);
-  chatsRouter.get('/users/:id', controller.getByUserID);
+  chatsRouter.get('/', controller.getByUserID);
 
   return chatsRouter;
 };
