@@ -5,6 +5,7 @@ import { validate } from '../middlewares/validate.js';
 import {
   validateUserLogin,
   validateUserRegister,
+  validateName,
 } from '../../helpers/zod/zodUsers.js';
 
 export const UsersRouter = (model) => {
@@ -18,6 +19,8 @@ export const UsersRouter = (model) => {
     controller.register
   );
   usersRouter.post('/login', validate(validateUserLogin), controller.login);
+
+  usersRouter.get('/', validate(validateName, 'query'), controller.getByName);
 
   return usersRouter;
 };

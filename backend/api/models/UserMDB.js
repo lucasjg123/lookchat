@@ -99,4 +99,15 @@ export class UserModel {
       throw new Error('Error al obtener usuarios');
     }
   }
+
+  static async getByName(user) {
+    try {
+      const users = await User.find({
+        name: { $regex: user.name, $options: 'i' },
+      });
+      return users;
+    } catch (error) {
+      throw new Error('Error al obtener usuarios');
+    }
+  }
 }

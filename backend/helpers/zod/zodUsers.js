@@ -25,3 +25,13 @@ export const validateUserLogin = baseUserSchema.refine(
     path: ['name'],
   }
 );
+
+export const validateName = z.object({
+  name: z
+    .string()
+    .min(1, 'Username is required and must be at least 1 character long')
+    .regex(
+      /^[a-zA-Z0-9_.]+$/,
+      'Username can only contain letters, numbers, underscores, and dots'
+    ),
+});

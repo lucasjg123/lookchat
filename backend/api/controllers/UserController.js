@@ -31,4 +31,17 @@ export class UserController {
       return res.status(500).json({ error: 'Failed to login user' });
     }
   };
+
+  getByName = async (req, res) => {
+    try {
+      const result = await this.model.getByName(req.validatedBody);
+      return res.status(200).json(result); // 200 para una respuesta exitosa
+    } catch (error) {
+      if (error instanceof AppError)
+        return res.status(error.statusCode).json({ error: error.message });
+
+      // console.error('Unexpected error in login:', error);
+      return res.status(500).json({ error: 'Failed to get users' });
+    }
+  };
 }

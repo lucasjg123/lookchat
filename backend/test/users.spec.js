@@ -3,10 +3,29 @@ import bcrypt from 'bcrypt';
 import req from 'supertest';
 import { connection } from '../helpers/connectionMDB.js';
 import mongoose from 'mongoose';
+import { en } from 'zod/v4/locales';
 
 // jest.setTimeout(20000); // evita timeout en hooks lentos
 
 const User = mongoose.model('User'); // modelo Mongoose
+
+const user = {
+  name: 'ricarditoTest',
+  mail: 'ricardo@gmail.com',
+  password: 'asldkfjaslkf',
+};
+
+const user2 = {
+  name: 'manolitoTest',
+  mail: 'manolito@gmail.com',
+  password: 'asldkfjaslkf',
+};
+
+const user3 = {
+  name: 'getUser3',
+  mail: 'getUser3@mail.com',
+  password: '123456',
+};
 
 beforeAll(async () => {
   await connection(); // conecta a MongoDB
@@ -238,4 +257,50 @@ describe('POST /api/users/login', () => {
       expect(res.body.error).toMatch(/invalid password/i);
     });
   });
+});
+
+describe('GET /api/users?name=asd', () => {
+  const endpoint = '/api/users';
+  let accessToken;
+  beforeAll(async () => {
+    // registrar 3 users
+    await req(app).post(`${endpoint}/register`).send(user);
+    await req(app).post(`${endpoint}/register`).send(user2);
+    await req(app).post(`${endpoint}/register`).send(user3);
+
+    //logear uno
+    // 2️⃣ Logear a uno de ellos para obtener el token
+    const resLogin = await req(app).post(`${endpoint}/login`).send(user);
+
+    accessToken = resLogin.body.accessToken;
+  });
+
+  describe('when sending valid data', () => {
+    const names = ['ri', 'r', 'ma', 'g', 'to'];
+
+    test('should respond with status 200 and json', async () => {
+      for (const name of names) {
+        console.log('enivamos el name: ', name);
+        let res = await req(app)
+          .get(`${endpoint}?name=${name}`)
+          .set('Authorization', `Bearer ${accessToken}`);
+        console.log('resp back', res.body);
+        expect(res.statusCode).toBe(200);
+        expect(res.headers['content-type']).toEqual(
+          expect.stringContaining('json')
+        );
+        expect(Array.isArray(res.body)).toBe(true);
+
+        // Verificar que todos los elementos del arreglo sean objetos
+        res.body.forEach((item) => {
+          expect(typeof item).toBe('object');
+          expect(item).not.toBeNull(); // Asegurarse de que no sea `null`
+        });
+      }
+    });
+  });
+
+  //when sendin invalid data
+
+  // when  not match username
 });

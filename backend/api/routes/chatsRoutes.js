@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { ChatController } from '../controllers/ChatController';
+import { ChatController } from '../controllers/ChatController.js';
 //validacion
 import { validate } from '../middlewares/validate.js';
 // validadores xd

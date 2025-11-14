@@ -1,7 +1,7 @@
 import { Router } from 'express';
-import { MessageController } from '../controllers/MessageController';
-import { validate } from '../middlewares/validate';
-import { validateMessage } from '../../helpers/zod/zodMessages';
+import { MessageController } from '../controllers/MessageController.js';
+import { validate } from '../middlewares/validate.js';
+import { validateMessage } from '../../helpers/zod/zodMessages.js';
 
 export const MessagesRouter = (model) => {
   const controller = new MessageController(model);
