@@ -77,6 +77,7 @@ export class UserModel {
       return {
         user: {
           name: userExist.name,
+          id: userExist._id,
         },
         accessToken,
         refreshToken,

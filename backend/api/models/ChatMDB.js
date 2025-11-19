@@ -51,7 +51,10 @@ export class ChatModel {
 
   static async getByUserID(userId) {
     try {
-      return Chat.find({ users: userId }).sort({ updatedAt: -1 }).limit(10);
+      return Chat.find({ users: userId })
+        .populate('users', 'name') // ← ACA SE TRAE EL nombre de cada usuario
+        .sort({ updatedAt: -1 })
+        .limit(10);
     } catch (error) {
       console.error('Error getting chat:', error);
       throw new Error('Failed to get chat');

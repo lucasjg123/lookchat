@@ -5,6 +5,7 @@ import { Login } from './pages/Login';
 import { Register } from './pages/Register';
 import { Home } from './pages/Home.jsx';
 import { Chats } from './pages/Chats.jsx';
+import { Chat } from './pages/Chat.jsx';
 import { ContextProvider, AuthContext } from './context/ContextProvider.jsx';
 
 export const AppRouter = () => {
@@ -27,6 +28,7 @@ const Router = () => {
       <Route path='/login' element={<Login />} />
       <Route path='/register' element={<Register />} />
       <Route path='/chats' element={<Chats />} />
+      <Route path='/chats/:id' element={<Chat />} />
 
       {/* Ruta protegida */}
       {/* 🔒 Ruta protegida */}

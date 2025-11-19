@@ -1,6 +1,9 @@
 import { useContext, useEffect, useState } from 'react';
 import { SearchBar } from '../components/SearchBar';
 import { AuthContext } from '../context/ContextProvider';
+import { useNavigate } from 'react-router-dom';
+const imageUrl =
+  'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80';
 const people = [
   {
     name: 'Leslie Alexander',
@@ -58,17 +61,49 @@ const people = [
 
 export const Chats = () => {
   const API_URL = import.meta.env.VITE_API_URL;
-  const backendUrl = `${API_URL}/chats`;
+  const backendUrlChats = `${API_URL}/chats`;
+  const backendUrlUsers = `${API_URL}/users`;
   const { accessToken } = useContext(AuthContext);
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [query, setQuery] = useState(''); // texto que escribe el usuario
   const [results, setResults] = useState([]); // resultados de la búsqueda
+  const [chats, setChats] = useState([]);
+  const navigate = useNavigate();
+
+  const handleChat = (name) => {
+    //verificar si existe el chat
+    //sino crearlo
+    createChat(name);
+
+    // navigate(`/chats/${id}`);
+  };
+
+  const handleOpenChat = (chat) => {
+    let name = chat.users[0].name;
+    navigate(`/chats/${chat._id}`, {
+      state: { name },
+    });
+  };
+  const createChat = async (name) => {
+    try {
+      const res = await fetch(backendUrlChats, {
+        method: 'POST',
+        body: JSON.stringify({ users: [name] }),
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+      const data = await res.json();
+      console.log('chats creado resp:', data);
+    } catch (error) {}
+  };
 
   // console.log('token:', accessToken);
   const get = async () => {
     // NECESSITO  TENER EL TOKEN GUARDADO EN CONTEXTO
     try {
-      const res = await fetch(backendUrl, {
+      const res = await fetch(backendUrlChats, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -76,6 +111,9 @@ export const Chats = () => {
         },
       });
       const data = await res.json();
+      console.log('type:', Array.isArray(data));
+
+      setChats(data);
       console.log('chats:', data);
     } catch (error) {}
   };
@@ -94,13 +132,14 @@ export const Chats = () => {
       }
 
       try {
-        const res = await fetch(`${backendUrl}?name=${query}`, {
+        const res = await fetch(`${backendUrlUsers}?name=${query}`, {
           headers: {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${accessToken}`,
           },
         });
         const data = await res.json();
+        console.log(data);
         setResults(data);
       } catch (error) {
         console.error('Error buscando:', error);
@@ -122,49 +161,61 @@ export const Chats = () => {
         handleChange={handleChange}
       />
       {isSearchFocused ? (
-        <div className='flex-1 bg-gray-900 bg-opacity-95 z-10'>
-          {/* contenido del overlay */}
+        <div className='ml-4 py-4 pl-1 mt-2'>
+          {results.length > 0 ? (
+            <ul role='list' className='divide-y divide-white/5'>
+              {results.map((r, i) => (
+                <li
+                  key={i}
+                  className='flex justify-between gap-x-4 py-4 px-3 active:bg-gray-800 transition rounded-xl cursor-pointer select-none'
+                  onClick={() => handleChat(r.name)}
+                >
+                  <div className='flex min-w-0 gap-x-4'>
+                    <img
+                      alt=''
+                      src={imageUrl}
+                      className='size-12 flex-none rounded-full bg-gray-800 outline -outline-offset-1 outline-white/10'
+                    />
+                    <div className='min-w-0 flex-auto'>
+                      <p className='text-sm/6 font-semibold text-white'>
+                        {r.name &&
+                          r.name.charAt(0).toUpperCase() + r.name.slice(1)}
+                      </p>
+                      <p className='mt-1 truncate text-xs/5 text-gray-400'>
+                        {/* {person.email} */}
+                      </p>
+                    </div>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className='text-gray-400'>Escribí para buscar...</p>
+          )}
         </div>
       ) : (
-        <div className='chats ml-4 py-4 pl-1 mt-2'>
+        <div className='ml-4 py-4 pl-1 mt-2'>
           <ul role='list' className='divide-y divide-white/5'>
-            {people.map((person) => (
+            {chats.map((chat, i) => (
               <li
-                key={person.email}
-                className='flex justify-between gap-x-6 py-5'
+                key={i}
+                className='flex justify-between gap-x-4 py-4 px-3 active:bg-gray-800 transition rounded-xl cursor-pointer select-none'
+                onClick={() => handleOpenChat(chat)}
               >
                 <div className='flex min-w-0 gap-x-4'>
                   <img
                     alt=''
-                    src={person.imageUrl}
+                    src={imageUrl}
                     className='size-12 flex-none rounded-full bg-gray-800 outline -outline-offset-1 outline-white/10'
                   />
                   <div className='min-w-0 flex-auto'>
                     <p className='text-sm/6 font-semibold text-white'>
-                      {person.name}
+                      {chat.users[0].name}
                     </p>
                     <p className='mt-1 truncate text-xs/5 text-gray-400'>
-                      {person.email}
+                      {'asdf'}
                     </p>
                   </div>
-                </div>
-                <div className='hidden shrink-0 sm:flex sm:flex-col sm:items-end'>
-                  <p className='text-sm/6 text-white'>{person.role}</p>
-                  {person.lastSeen ? (
-                    <p className='mt-1 text-xs/5 text-gray-400'>
-                      Last seen{' '}
-                      <time dateTime={person.lastSeenDateTime}>
-                        {person.lastSeen}
-                      </time>
-                    </p>
-                  ) : (
-                    <div className='mt-1 flex items-center gap-x-1.5'>
-                      <div className='flex-none rounded-full bg-emerald-500/30 p-1'>
-                        <div className='size-1.5 rounded-full bg-emerald-500' />
-                      </div>
-                      <p className='text-xs/5 text-gray-400'>Online</p>
-                    </div>
-                  )}
                 </div>
               </li>
             ))}

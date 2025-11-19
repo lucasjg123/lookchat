@@ -7,9 +7,11 @@ export class MessageController {
     try {
       let newMsg = req.validatedBody;
       newMsg.sender = req.user.id;
-      msgCreated = await this.model.create(newMsg);
+      let msgCreated = await this.model.create(newMsg);
+      // console.log(msgCreated);
       return res.status(201).json(msgCreated);
-    } catch {
+    } catch (error) {
+      console.log('Error en create:', error);
       return res.status(500).json({ error: 'Failed to save message' });
     }
   };

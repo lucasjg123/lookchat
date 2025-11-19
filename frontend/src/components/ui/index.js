@@ -4,3 +4,4 @@ export * from './Button';
 export * from './Title';
 export * from './Link';
 export * from './Logo';
+export * from './InputChat';

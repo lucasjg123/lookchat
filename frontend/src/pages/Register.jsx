@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
-import { NavLink, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { LoginForm } from '../components/LoginForm';
-import { Label, Button, Input, Title, Link, Logo } from '../components/ui';
+import { Label, Input, Title, Link, Logo } from '../components/ui';
 
 export const Register = () => {
   const API_URL = import.meta.env.VITE_API_URL;
