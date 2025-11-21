@@ -3,7 +3,7 @@ import { ArrowLeftIcon } from '@heroicons/react/20/solid';
 export const HeaderChat = ({ back, name }) => {
   return (
     <>
-      <div className='flex min-w-0 py-5 px-3 items-center'>
+      <div className='flex min-w-0 py-5 px-3 items-center border-b border-gray-700'>
         <div
           className='p-2 rounded-xl active:bg-gray-800 transition cursor-pointer select-none flex items-center justify-center mr-2'
           onClick={() => back()}

@@ -53,11 +53,26 @@ export class ChatModel {
     try {
       return Chat.find({ users: userId })
         .populate('users', 'name') // ← ACA SE TRAE EL nombre de cada usuario
+        .populate('lastMessage', 'content sender createdAt')
         .sort({ updatedAt: -1 })
         .limit(10);
     } catch (error) {
       console.error('Error getting chat:', error);
       throw new Error('Failed to get chat');
+    }
+  }
+
+  static async update(chat) {
+    try {
+      const { _id, ...data } = chat; // separamos el id del resto
+
+      return await Chat.updateOne(
+        { _id }, // condición
+        data // datos a actualizar
+      );
+    } catch (error) {
+      console.error('Error updating chat:', error);
+      throw new Error('Failed to update chat');
     }
   }
 }

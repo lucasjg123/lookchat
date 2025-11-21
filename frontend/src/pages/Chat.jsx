@@ -74,25 +74,31 @@ export const Chat = () => {
   // func para mandar a /chats
 
   return (
-    <>
+    <div className='flex flex-col h-screen'>
+      {/* HEADER */}
       <HeaderChat back={handleBack} name={name} />
-      <ul>
-        {messages.map((msg, i) => (
-          <li
-            key={i}
-            className={`my-2 p-2 table rounded-md ${
-              msg.sender === usuarioAuth.id
-                ? 'bg-sky-700 ml-auto mr-3'
-                : 'bg-green-950 mr-auto ml-2'
-            }`}
-          >
-            <span className='text-md text-white mr-2'>{msg.content}</span>
-            <span className='text-xs text-gray-300'>{msg.createdAt}</span>
-            {/* ponerla  hora */}
-          </li>
-        ))}
-      </ul>
-      <form onSubmit={handleSubmit} className='absolute inset-x-0 bottom-0'>
+
+      {/* CHAT (scroll) */}
+      <div className='overflow-y-auto flex-1 px-4 py-2'>
+        <ul>
+          {messages.map((msg, i) => (
+            <li
+              key={i}
+              className={`my-2 p-2 table rounded-md ${
+                msg.sender === usuarioAuth.id
+                  ? 'bg-sky-700 ml-auto mr-3'
+                  : 'bg-green-950 mr-auto ml-2'
+              }`}
+            >
+              <span className='text-md text-white mr-2'>{msg.content}</span>
+              <span className='text-xs text-gray-300'>{msg.createdAt}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      {/* INPUT */}
+      <form onSubmit={handleSubmit} className='p-3 border-t border-gray-700'>
         <InputChat
           name='message'
           type='text'
@@ -104,6 +110,6 @@ export const Chat = () => {
           Enviar
         </button>
       </form>
-    </>
+    </div>
   );
 };

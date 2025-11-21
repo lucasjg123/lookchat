@@ -5,6 +5,8 @@ app de chat en tiempo real con websockets (socket io)
 > chats con index for find quickly chats recently
 > chats 1a1 y grupos
 > realizamos test de integracion con jest y supertest
+> verificacin por mial del usuario
+> 2fa?
 
 Todo
 

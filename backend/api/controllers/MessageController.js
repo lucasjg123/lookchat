@@ -1,6 +1,7 @@
 export class MessageController {
-  constructor(model) {
+  constructor(model, modelChat) {
     this.model = model;
+    this.modelChat = modelChat;
   }
 
   create = async (req, res) => {
@@ -9,6 +10,13 @@ export class MessageController {
       newMsg.sender = req.user.id;
       let msgCreated = await this.model.create(newMsg);
       // console.log(msgCreated);
+
+      // actuliazamos chat con lastmessage
+      await this.modelChat.update({
+        _id: msgCreated.chat,
+        lastMessage: msgCreated._id,
+      });
+
       return res.status(201).json(msgCreated);
     } catch (error) {
       console.log('Error en create:', error);

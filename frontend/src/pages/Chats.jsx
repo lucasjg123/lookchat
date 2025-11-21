@@ -2,68 +2,15 @@ import { useContext, useEffect, useState } from 'react';
 import { SearchBar } from '../components/SearchBar';
 import { AuthContext } from '../context/ContextProvider';
 import { useNavigate } from 'react-router-dom';
+import { CheckIcon } from '@heroicons/react/20/solid';
 const imageUrl =
   'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80';
-const people = [
-  {
-    name: 'Leslie Alexander',
-    email: 'leslie.alexander@example.com',
-    role: 'Co-Founder / CEO',
-    imageUrl:
-      'https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
-    lastSeen: '3h ago',
-    lastSeenDateTime: '2023-01-23T13:23Z',
-  },
-  {
-    name: 'Michael Foster',
-    email: 'michael.foster@example.com',
-    role: 'Co-Founder / CTO',
-    imageUrl:
-      'https://images.unsplash.com/photo-1519244703995-f4e0f30006d5?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
-    lastSeen: '3h ago',
-    lastSeenDateTime: '2023-01-23T13:23Z',
-  },
-  {
-    name: 'Dries Vincent',
-    email: 'dries.vincent@example.com',
-    role: 'Business Relations',
-    imageUrl:
-      'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
-    lastSeen: null,
-  },
-  {
-    name: 'Lindsay Walton',
-    email: 'lindsay.walton@example.com',
-    role: 'Front-end Developer',
-    imageUrl:
-      'https://images.unsplash.com/photo-1517841905240-472988babdf9?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
-    lastSeen: '3h ago',
-    lastSeenDateTime: '2023-01-23T13:23Z',
-  },
-  {
-    name: 'Courtney Henry',
-    email: 'courtney.henry@example.com',
-    role: 'Designer',
-    imageUrl:
-      'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
-    lastSeen: '3h ago',
-    lastSeenDateTime: '2023-01-23T13:23Z',
-  },
-  {
-    name: 'Tom Cook',
-    email: 'tom.cook@example.com',
-    role: 'Director of Product',
-    imageUrl:
-      'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
-    lastSeen: null,
-  },
-];
 
 export const Chats = () => {
   const API_URL = import.meta.env.VITE_API_URL;
   const backendUrlChats = `${API_URL}/chats`;
   const backendUrlUsers = `${API_URL}/users`;
-  const { accessToken } = useContext(AuthContext);
+  const { accessToken, usuarioAuth } = useContext(AuthContext);
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [query, setQuery] = useState(''); // texto que escribe el usuario
   const [results, setResults] = useState([]); // resultados de la búsqueda
@@ -196,29 +143,59 @@ export const Chats = () => {
       ) : (
         <div className='ml-4 py-4 pl-1 mt-2'>
           <ul role='list' className='divide-y divide-white/5'>
-            {chats.map((chat, i) => (
-              <li
-                key={i}
-                className='flex justify-between gap-x-4 py-4 px-3 active:bg-gray-800 transition rounded-xl cursor-pointer select-none'
-                onClick={() => handleOpenChat(chat)}
-              >
-                <div className='flex min-w-0 gap-x-4'>
-                  <img
-                    alt=''
-                    src={imageUrl}
-                    className='size-12 flex-none rounded-full bg-gray-800 outline -outline-offset-1 outline-white/10'
-                  />
-                  <div className='min-w-0 flex-auto'>
-                    <p className='text-sm/6 font-semibold text-white'>
-                      {chat.users[0].name}
-                    </p>
-                    <p className='mt-1 truncate text-xs/5 text-gray-400'>
-                      {'asdf'}
-                    </p>
+            {chats.map((chat, i) => {
+              // 1️⃣ Identificar al otro usuario del chat
+              const otherUser = chat.users.find((u) => u.id !== usuarioAuth.id);
+
+              // 2️⃣ Último mensaje del chat
+              const lastMessage =
+                chat.lastMessage?.content || 'No messages yet';
+              const lastDate = chat.lastMessage?.createdAt
+                ? new Date(chat.lastMessage.createdAt).toLocaleTimeString([], {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                  })
+                : '';
+
+              return (
+                <li
+                  key={i}
+                  className='flex justify-between items-center gap-x-4 py-3 px-3 
+                   hover:bg-gray-800 active:bg-gray-700
+                   rounded-xl cursor-pointer transition select-none'
+                  onClick={() => handleOpenChat(chat)}
+                >
+                  {/* Izquierda: avatar + info */}
+                  <div className='flex min-w-0 gap-x-4 items-center'>
+                    <img
+                      alt={otherUser?.name}
+                      src={imageUrl}
+                      className='size-12 rounded-full bg-gray-800 shadow'
+                    />
+
+                    <div className='min-w-0 flex-auto'>
+                      <p className='text-sm font-semibold text-white truncate'>
+                        {otherUser?.name}
+                      </p>
+                      <div className='flex items-center'>
+                        {chat.lastMessage?.sender === usuarioAuth.id && (
+                          <CheckIcon className='text-white size-4 mr-1' />
+                        )}
+
+                        <p className='mt-0.5 text-xs text-gray-400 truncate'>
+                          {lastMessage}
+                        </p>
+                      </div>
+                    </div>
                   </div>
-                </div>
-              </li>
-            ))}
+
+                  {/* Derecha: Hora */}
+                  <div className='flex flex-col items-end'>
+                    <p className='text-xs text-gray-400'>{lastDate}</p>
+                  </div>
+                </li>
+              );
+            })}
           </ul>
         </div>
       )}

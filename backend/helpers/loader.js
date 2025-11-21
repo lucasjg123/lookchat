@@ -16,7 +16,7 @@ export function loaderApp(app) {
 
   // rutas protegidas
   app.use('/api/chats', auth, ChatsRouter(ChatModel, UserModel));
-  app.use('/api/messages', auth, MessagesRouter(MessageModel));
+  app.use('/api/messages', auth, MessagesRouter(MessageModel, ChatModel));
 
   app.get('/asd', (req, res) => {
     res.json({ message: 'hola' });
