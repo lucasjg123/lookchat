@@ -1,3 +1,4 @@
+import { createAccessToken } from '../../helpers/jwt.js';
 import { AppError } from '../../helpers/errors.js';
 
 export class UserController {
@@ -42,6 +43,25 @@ export class UserController {
 
       // console.error('Unexpected error in login:', error);
       return res.status(500).json({ error: 'Failed to get users' });
+    }
+  };
+
+  refreshToken = async (req, res) => {
+    try {
+      // Esto llega desde el middleware
+      const payload = req.user; // { id, tipo, exp }
+
+      // buscar usuario real
+      const user = await this.model.get({ _id: payload.id });
+      if (!user) return res.status(404).json({ error: 'User not found' });
+
+      // generar nuevo accessToken
+      const accessToken = createAccessToken(user);
+
+      return res.json({ accessToken });
+    } catch (error) {
+      console.error('Error en refreshToken:', error);
+      return res.status(500).json({ error: 'Error verifying refresh token' });
     }
   };
 }

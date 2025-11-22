@@ -27,15 +27,19 @@ const Router = () => {
       <Route path='/' element={<Home />} />
       <Route path='/login' element={<Login />} />
       <Route path='/register' element={<Register />} />
-      <Route path='/chats' element={<Chats />} />
-      <Route path='/chats/:id' element={<Chat />} />
+      {/* <Route path='/chats' element={<Chats />} /> */}
+      {/* <Route path='/chats/:id' element={<Chat />} /> */}
 
       {/* Ruta protegida */}
       {/* 🔒 Ruta protegida */}
-      {/* <Route
+      <Route
         path='/chats'
-        element={accessToken ? <Chats /> : <Navigate to='/login' replace />}
-      /> */}
+        element={accessToken ? <Chats /> : <Navigate to='/login' />}
+      />
+      <Route
+        path='/chats/:id'
+        element={accessToken ? <Chats /> : <Navigate to='/login' />}
+      />
 
       {/* Error 404 */}
       <Route path='*' element={<h1>Error 404: Page not found</h1>} />

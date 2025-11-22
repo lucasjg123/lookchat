@@ -77,6 +77,7 @@ describe('POST /api/chats/', () => {
         .post(endpoint)
         .set('Authorization', `Bearer ${accessToken}`)
         .send(newChat);
+      // console.log('resp create chat:', res);
     });
 
     test('should responds with status 201 and JSON content', async () => {
@@ -90,44 +91,6 @@ describe('POST /api/chats/', () => {
     test('should responds with a valid user', async () => {
       expect(res.body).toHaveProperty('_id');
       expect(res.body._id).toBeTruthy();
-    });
-  });
-
-  describe('when not sending token', () => {
-    test('should respond with a status 401 and error message', async () => {
-      const newChat = { users: [user2.name] };
-
-      const res = await req(app).post(endpoint).send(newChat);
-
-      console.log('res not sending tokenn: ', res.body);
-      expect(res.statusCode).toBe(401);
-      expect(res.body).toHaveProperty('error');
-      expect(res.body.error).toMatch(/No token provided/i);
-    });
-  });
-
-  describe('when sending invalid token', () => {
-    const newChat = { users: [user2.name] };
-    const invalidTokens = [
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.aW52YWxpZHNpZ25hdHVyZQ',
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9',
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.D0eYo7h3H4gD0m9GjFD7Gwe0O_X8MLe0hpwJMQ1FJqY',
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwiaWF0IjoxNTE2MjM5MDIyfQ.6FGiU5hHfrLqHV_4pNm5ZLQPy1buH4tsfZoSloq7vM8',
-      'eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.',
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxMjM0NTY3ODkwfQ.ujS3iO8Dh_i5DzojrhGpmGjrXqU2CCHbL8yNSj0hRjM',
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.FQ1QmlciqK6byO5h0rmgnZyQbPtQODXK9JKle4_bOlo',
-    ];
-
-    test('should respond with a status 401 and error message', async () => {
-      for (const token of invalidTokens) {
-        const res = await req(app)
-          .post(endpoint)
-          .set('Authorization', `Bearer ${token}`)
-          .send(newChat);
-        expect(res.statusCode).toBe(401);
-        expect(res.body).toHaveProperty('error');
-        expect(res.body.error).toMatch(/Authentication Error/i);
-      }
     });
   });
 

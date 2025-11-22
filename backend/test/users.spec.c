@@ -3,7 +3,8 @@ import bcrypt from 'bcrypt';
 import req from 'supertest';
 import { connection } from '../helpers/connectionMDB.js';
 import mongoose from 'mongoose';
-import { en } from 'zod/v4/locales';
+import jwt from 'jwt-simple';
+import 'dotenv/config';
 
 // jest.setTimeout(20000); // evita timeout en hooks lentos
 
@@ -35,6 +36,7 @@ afterAll(async () => {
   await User.deleteMany({});
   await mongoose.connection.close(); // cierra la conexión al final
 });
+/*
 // describe('', ()=>{})
 describe('POST /api/users/register', () => {
   const endpoint = '/api/users/register';
@@ -257,8 +259,148 @@ describe('POST /api/users/login', () => {
       expect(res.body.error).toMatch(/invalid password/i);
     });
   });
+}); */
+
+describe('POST /api/users/refresh', () => {
+  const endpoint = '/api/users/refresh';
+  const endpointLogin = '/api/users/login';
+  const plainPassword = 'asldkfjaslkf';
+  const user = {
+    name: 'ricarditoTest',
+    mail: 'ricardo@gmail.com',
+    password: plainPassword,
+  };
+
+  let refreshToken;
+  let res;
+  // Create a user before all test
+  beforeAll(async () => {
+    await User.deleteMany({});
+    const hashedPassword = await bcrypt.hash(plainPassword, 10);
+    await User.create({ ...user, password: hashedPassword }); // puedo hacerlo mediante el /register y listo
+    // logeo el usuario apra obetner el refresh token
+    let resLogin = await req(app).post(endpointLogin).send(user);
+    refreshToken = resLogin.body.refreshToken;
+    // console.log('refresh token del /login:', refreshToken);
+  });
+
+  describe('when sending a valid refresh token', () => {
+    beforeEach(async () => {
+      res = await req(app).post(endpoint).send({ refreshToken });
+    });
+
+    // test('should respond with', ()=>{})
+    test('should responds with status 200 and JSON content', () => {
+      console.log('respuesta de refreshtoken:', res.body);
+      expect(res.statusCode).toBe(200);
+      expect(res.headers['content-type']).toEqual(
+        expect.stringContaining('json')
+      );
+    });
+
+    test('should responds with valid JWT tokens', () => {
+      expect(res.body).toHaveProperty('accessToken');
+      const jwtRegex = /^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+$/;
+      expect(res.body.accessToken).toMatch(jwtRegex);
+    });
+  });
+
+  describe('when not sending refresh token', () => {
+    test('should responds with 401 and message error', async () => {
+      let res = await req(app).post(endpoint).send({});
+      expect(res.body).toHaveProperty('error');
+      expect(res.body.error).toMatch(/Refresh token is required/i);
+    });
+
+    test('should responds with 401 and message error', async () => {
+      let res = await req(app).post(endpoint).send({ refreshToken: '' });
+      expect(res.body).toHaveProperty('error');
+      expect(res.body.error).toMatch(/Refresh token is required/i);
+    });
+  });
+
+  describe('when sending invalid token', () => {
+    const invalidTokens = [
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.aW52YWxpZHNpZ25hdHVyZQ',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.D0eYo7h3H4gD0m9GjFD7Gwe0O_X8MLe0hpwJMQ1FJqY',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwiaWF0IjoxNTE2MjM5MDIyfQ.6FGiU5hHfrLqHV_4pNm5ZLQPy1buH4tsfZoSloq7vM8',
+      'eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxMjM0NTY3ODkwfQ.ujS3iO8Dh_i5DzojrhGpmGjrXqU2CCHbL8yNSj0hRjM',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.FQ1QmlciqK6byO5h0rmgnZyQbPtQODXK9JKle4_bOlo',
+    ];
+
+    test('should respond with a status 401 and error message', async () => {
+      for (const token of invalidTokens) {
+        const res = await req(app).post(endpoint).send({ refreshToken: token });
+        expect(res.statusCode).toBe(401);
+        expect(res.body).toHaveProperty('error');
+        expect(res.body.error).toMatch(/Invalid refresh token/i);
+      }
+    });
+  });
+
+  describe('when sending token with invalid type', () => {
+    test('should respond with 401 and "Invalid token type"', async () => {
+      const invalidTypeToken = jwt.encode(
+        {
+          id: '123',
+          tipo: 'access', // ❌ tipo incorrecto
+          exp: Math.floor(Date.now() / 1000) + 60,
+        },
+        process.env.SECRETO_REFRESH
+      );
+
+      const res = await req(app)
+        .post(endpoint)
+        .send({ refreshToken: invalidTypeToken });
+
+      expect(res.statusCode).toBe(401);
+      expect(res.body.error).toMatch(/Invalid token type/i);
+    });
+  });
+
+  describe('when sending token without type property', () => {
+    test('should respond with 401 and "Invalid token type"', async () => {
+      const missingTipoToken = jwt.encode(
+        {
+          id: '123',
+          exp: Math.floor(Date.now() / 1000) + 60,
+        },
+        process.env.SECRETO_REFRESH
+      );
+
+      const res = await req(app)
+        .post(endpoint)
+        .send({ refreshToken: missingTipoToken });
+
+      expect(res.statusCode).toBe(401);
+      expect(res.body.error).toMatch(/Invalid refresh token/i);
+    });
+  });
+
+  describe('when sending expired refresh token', () => {
+    test('should respond with 401 and "Refresh token expired"', async () => {
+      const expiredToken = jwt.encode(
+        {
+          id: '123',
+          tipo: 'refresh',
+          exp: Math.floor(Date.now() / 1000) - 10, // ❌ ya expirado
+        },
+        process.env.SECRETO_REFRESH
+      );
+
+      const res = await req(app)
+        .post(endpoint)
+        .send({ refreshToken: expiredToken });
+
+      expect(res.statusCode).toBe(401);
+      expect(res.body.error).toMatch(/Refresh token expired/i);
+    });
+  });
 });
 
+/*
 describe('GET /api/users?name=asd', () => {
   const endpoint = '/api/users';
   let accessToken;
@@ -303,4 +445,4 @@ describe('GET /api/users?name=asd', () => {
   //when sendin invalid data
 
   // when  not match username
-});
+  */

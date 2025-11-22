@@ -7,6 +7,7 @@ import {
   validateUserRegister,
   validateName,
 } from '../../helpers/zod/zodUsers.js';
+import { refreshToken } from '../middlewares/refresh.js';
 
 export const UsersRouter = (model) => {
   const controller = new UserController(model);
@@ -19,6 +20,8 @@ export const UsersRouter = (model) => {
     controller.register
   );
   usersRouter.post('/login', validate(validateUserLogin), controller.login);
+
+  usersRouter.post('/refresh', refreshToken, controller.refreshToken);
 
   usersRouter.get('/', validate(validateName, 'query'), controller.getByName);
 

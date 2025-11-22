@@ -7,9 +7,10 @@ export const createAccessToken = (user) => {
   const { name, mail, id } = user;
   const payload = {
     id,
+    tipo: 'access',
     name,
     mail,
-    exp: Date.now() + ACCESS_EXP,
+    exp: Math.floor((Date.now() + ACCESS_EXP) / 1000), // 👈 EN SEGUNDOS
   };
   return jwt.encode(payload, process.env.SECRETO);
 };
@@ -19,7 +20,7 @@ export const createRefreshToken = (user) => {
   const payload = {
     id,
     tipo: 'refresh',
-    exp: Date.now() + REFRESH_EXP,
+    exp: Math.floor((Date.now() + REFRESH_EXP) / 1000), // 👈 EN SEGUNDOS
   };
-  return jwt.encode(payload, process.env.SECRETO);
+  return jwt.encode(payload, process.env.SECRETO_REFRESH);
 };
