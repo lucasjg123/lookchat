@@ -20,7 +20,19 @@ export const AppRouter = () => {
 
 // Este componente sí está dentro de ContextProvider
 const Router = () => {
-  const { accessToken } = useContext(AuthContext);
+  const { accessToken, loadingSession } = useContext(AuthContext);
+
+  // hacer componente este loader
+  if (loadingSession) {
+    {
+      console.log('loading session');
+    }
+    return (
+      <div className='flex items-center justify-center h-screen bg-black text-white'>
+        <div className='animate-spin rounded-full h-12 w-12 border-b-2 border-white'></div>
+      </div>
+    );
+  }
 
   return (
     <Routes>
@@ -30,15 +42,14 @@ const Router = () => {
       {/* <Route path='/chats' element={<Chats />} /> */}
       {/* <Route path='/chats/:id' element={<Chat />} /> */}
 
-      {/* Ruta protegida */}
-      {/* 🔒 Ruta protegida */}
+      {/* 🔒 Rutas protegida */}
       <Route
         path='/chats'
         element={accessToken ? <Chats /> : <Navigate to='/login' />}
       />
       <Route
         path='/chats/:id'
-        element={accessToken ? <Chats /> : <Navigate to='/login' />}
+        element={accessToken ? <Chat /> : <Navigate to='/login' />}
       />
 
       {/* Error 404 */}

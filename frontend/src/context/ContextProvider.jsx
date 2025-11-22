@@ -5,8 +5,11 @@ import { createContext, useState, useEffect } from 'react';
 export const AuthContext = createContext();
 
 export const ContextProvider = ({ children }) => {
+  const API_URL = import.meta.env.VITE_API_URL;
+  const backendUrl = `${API_URL}/users`;
   const [usuarioAuth, setUsuarioAuth] = useState(null); // datos del usuario logueado
   const [accessToken, setAccessToken] = useState(null); // token de acceso actual
+  const [loadingSession, setLoadingSession] = useState(true); // loading para verificar la sesion y refrescar token
 
   // 🔹 Función para hacer login y guardar los datos
   const login = (data) => {
@@ -35,7 +38,7 @@ export const ContextProvider = ({ children }) => {
     if (usuario && refreshToken) {
       try {
         // Pedimos nuevo accessToken al backend
-        const res = await fetch('/api/auth/refresh', {
+        const res = await fetch(`${backendUrl}/refresh`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ refreshToken }),
@@ -44,6 +47,7 @@ export const ContextProvider = ({ children }) => {
         if (res.ok) {
           setUsuarioAuth(JSON.parse(usuario));
           setAccessToken(data.accessToken);
+          // console.log(usuario);
         } else {
           logout();
         }
@@ -52,6 +56,7 @@ export const ContextProvider = ({ children }) => {
         logout();
       }
     }
+    setLoadingSession(false); // 🔥 listo para renderizar la app
   };
 
   useEffect(() => {
@@ -59,7 +64,9 @@ export const ContextProvider = ({ children }) => {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ usuarioAuth, accessToken, login, logout }}>
+    <AuthContext.Provider
+      value={{ usuarioAuth, accessToken, login, logout, loadingSession }}
+    >
       {children}
     </AuthContext.Provider>
   );

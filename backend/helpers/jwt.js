@@ -4,7 +4,10 @@ const ACCESS_EXP = 1000 * 60 * 15; // 15 minutos
 const REFRESH_EXP = 1000 * 60 * 60 * 24 * 7; // 7 días
 
 export const createAccessToken = (user) => {
-  const { name, mail, id } = user;
+  console.log('user access pa:', user);
+
+  const id = user.id || user._id; // 👈 FIX
+  const { name, mail } = user;
   const payload = {
     id,
     tipo: 'access',
@@ -16,6 +19,7 @@ export const createAccessToken = (user) => {
 };
 
 export const createRefreshToken = (user) => {
+  console.log('user refresh pa:', user);
   const { id } = user;
   const payload = {
     id,

@@ -62,7 +62,9 @@ export const Chats = () => {
 
       setChats(data);
       console.log('chats:', data);
-    } catch (error) {}
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   // función que se ejecuta cuando el usuario escribe

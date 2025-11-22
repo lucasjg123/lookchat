@@ -101,6 +101,14 @@ export class UserModel {
     }
   }
 
+  static async getById(id) {
+    try {
+      return await User.findById(id); // devuelve un OBJETO
+    } catch (error) {
+      throw new Error('Error al obtener usuario por ID');
+    }
+  }
+
   static async getByName(user) {
     try {
       const users = await User.find({

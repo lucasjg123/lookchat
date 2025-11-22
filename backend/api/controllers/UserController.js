@@ -52,7 +52,7 @@ export class UserController {
       const payload = req.user; // { id, tipo, exp }
 
       // buscar usuario real
-      const user = await this.model.get({ _id: payload.id });
+      const user = await this.model.getById(payload.id);
       if (!user) return res.status(404).json({ error: 'User not found' });
 
       // generar nuevo accessToken
