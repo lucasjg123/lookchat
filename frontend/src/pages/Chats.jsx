@@ -17,12 +17,18 @@ export const Chats = () => {
   const [chats, setChats] = useState([]);
   const navigate = useNavigate();
 
-  const handleChat = (name) => {
+  const handleChat = async (user) => {
+    let name = user.name;
     //verificar si existe el chat
+    let users = [user.id];
+    // console.log('usuarios:', users);
+    // buscar un chat q contenga esos dos id
     //sino crearlo
-    createChat(name);
-
-    // navigate(`/chats/${id}`);
+    let newChat = await createChat(users);
+    // console.log('chat new/exist:', newChat);
+    navigate(`/chats/${newChat._id}`, {
+      state: { name },
+    });
   };
 
   const handleOpenChat = (chat) => {
@@ -31,18 +37,17 @@ export const Chats = () => {
       state: { name },
     });
   };
-  const createChat = async (name) => {
+  const createChat = async (users) => {
     try {
       const res = await fetch(backendUrlChats, {
         method: 'POST',
-        body: JSON.stringify({ users: [name] }),
+        body: JSON.stringify({ users }),
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${accessToken}`,
         },
       });
-      const data = await res.json();
-      console.log('chats creado resp:', data);
+      return await res.json();
     } catch (error) {}
   };
 
@@ -117,7 +122,7 @@ export const Chats = () => {
                 <li
                   key={i}
                   className='flex justify-between gap-x-4 py-4 px-3 active:bg-gray-800 transition rounded-xl cursor-pointer select-none'
-                  onClick={() => handleChat(r.name)}
+                  onClick={() => handleChat(r)}
                 >
                   <div className='flex min-w-0 gap-x-4'>
                     <img

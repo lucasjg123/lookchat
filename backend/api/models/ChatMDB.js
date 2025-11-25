@@ -38,11 +38,11 @@ export class ChatModel {
     }
   }
 
-  static async getOneByUsersID(usersID) {
+  static async getOneByUsersID(userIds) {
     try {
       return Chat.findOne({
         type: 'private',
-        users: { $all: usersID, $size: 2 },
+        users: { $all: userIds, $size: 2 },
       });
     } catch (error) {
       throw new Error('Failed to get chat');

@@ -2,6 +2,8 @@ import req from 'supertest';
 import app from '../app.js';
 import { connection } from '../helpers/connectionMDB.js';
 import mongoose from 'mongoose';
+import { jest } from '@jest/globals';
+jest.setTimeout(30000); // 30 segundos
 
 const Chat = mongoose.model('Chat'); // modelo Mongoose
 const User = mongoose.model('User');
@@ -60,9 +62,9 @@ beforeAll(async () => {
 afterAll(async () => {
   await Chat.deleteMany({});
   await User.deleteMany({});
-  await mongoose.connection.close(); // cierra la conexión al final
+  await mongoose.connection.close(true); // cierra la conexión al final
 });
-// describe('', () => {});
+describe('', () => {});
 describe('POST /api/chats/', () => {
   const endpoint = '/api/chats/';
   // console.log('Res register:', resRegister);
@@ -70,9 +72,11 @@ describe('POST /api/chats/', () => {
     // test('', () => {})
     let res;
     beforeAll(async () => {
+      let userTest = await User.findOne({ name: user2.name });
       const newChat = {
-        users: [user2.name],
+        users: [userTest._id],
       };
+
       res = await req(app)
         .post(endpoint)
         .set('Authorization', `Bearer ${accessToken}`)
@@ -111,10 +115,10 @@ describe('POST /api/chats/', () => {
     });
   });
 
-  describe('when sending a userName not registered', () => {
+  describe('when sending a id not registered', () => {
     test('should respond with status 404 a message error', async () => {
       const newChat = {
-        users: ['xocas'],
+        users: ['507f191e810c19729de860ea'],
       };
       res = await req(app)
         .post(endpoint)
@@ -122,7 +126,7 @@ describe('POST /api/chats/', () => {
         .send(newChat);
       expect(res.statusCode).toBe(404);
       expect(res.body).toHaveProperty('error');
-      expect(res.body.error).toMatch(/User not found/i);
+      expect(res.body.error).toMatch(/Some users do not exist/i);
     });
   });
 
@@ -140,23 +144,30 @@ describe('POST /api/chats/', () => {
   });
 
   describe('when a chat is already create', () => {
-    test('should respond with status 409 a message error', async () => {
+    test('should respond with a object chat', async () => {
       //create chat twice
+      let userTest = await User.findOne({ name: user2.name });
       const newChat = {
-        users: [user2.name],
+        users: [userTest._id],
       };
       res = await req(app)
         .post(endpoint)
         .set('Authorization', `Bearer ${accessToken}`)
         .send(newChat);
+      console.log('Primera creacion:', res.body);
       res = await req(app)
         .post(endpoint)
         .set('Authorization', `Bearer ${accessToken}`)
         .send(newChat);
 
-      expect(res.statusCode).toBe(409);
-      expect(res.body).toHaveProperty('error');
-      expect(res.body.error).toMatch(/Chat already exist/i);
+      console.log('dberia ser chat:', res.body);
+
+      expect(res.statusCode).toBe(200);
+      expect(res.headers['content-type']).toEqual(
+        expect.stringContaining('json')
+      );
+      expect(res.body).toHaveProperty('_id');
+      expect(res.body._id).toBeTruthy();
     });
   });
 });
@@ -166,15 +177,19 @@ describe('GET /api/chats/', () => {
 
   beforeAll(async () => {
     // Crear algunos chats
-    await req(app)
-      .post(endpoint)
-      .set('Authorization', `Bearer ${accessToken}`)
-      .send({ users: [user2.name] });
+
+    let userTest = await User.findOne({ name: user2.name });
+    let userTest2 = await User.findOne({ name: user3.name });
 
     await req(app)
       .post(endpoint)
       .set('Authorization', `Bearer ${accessToken}`)
-      .send({ users: [user3.name] });
+      .send({ users: [userTest._id] });
+
+    await req(app)
+      .post(endpoint)
+      .set('Authorization', `Bearer ${accessToken}`)
+      .send({ users: [userTest2._id] });
   });
 
   // recibir 0 chats osea [] y recibir chats[3]
@@ -197,6 +212,15 @@ describe('GET /api/chats/', () => {
 
       test('should responds with a object array', async () => {
         expect(Array.isArray(res.body)).toBe(true);
+      });
+
+      test('should contain chat objects', () => {
+        console.log('chats fantasmas:', res.body);
+        expect(res.body.length).toBeGreaterThan(0);
+        const chat = res.body[0];
+        expect(chat).toHaveProperty('_id');
+        expect(chat).toHaveProperty('users');
+        expect(Array.isArray(chat.users)).toBe(true);
       });
     });
 

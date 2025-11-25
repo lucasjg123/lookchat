@@ -6,35 +6,36 @@ export class ChatController {
 
   create = async (req, res) => {
     try {
-      const currentUserId = req.user.id;
       // "users: userNames", renombra users por userNames
-      const { users: userNames, type, name, admins } = req.validatedBody;
+      const { users, type, name, admins } = req.validatedBody;
+      const currentUserId = req.user.id;
 
-      // Get users id by names [modelo]. *pasar a user model*
+      users.push(currentUserId);
+
+      // validamos q existan los users
       const foundUsers = await this.modelUser.get({
-        name: { $in: userNames },
+        _id: { $in: users },
       });
 
-      if (foundUsers.length !== userNames.length)
-        return res.status(404).json({ error: 'User not found' });
+      // 3. Validar que existan todos
+      if (foundUsers.length !== users.length) {
+        return res.status(404).json({
+          error: 'Some users do not exist',
+        });
+      }
 
-      // creamos array solo con ids ['3434', '3555]
-      const userIds = foundUsers.map((u) => u._id);
+      // SI ES PRIVADO: verificar si ya existe el chat
+      const existingChat = await this.model.getOneByUsersID(users);
 
-      // agregamos el id
-      userIds.push(currentUserId);
+      if (existingChat) return res.status(200).json(existingChat);
+      // return res.status(409).json({ error: 'Chat already exist' });
 
       const chatData = {
         type,
-        users: userIds,
+        users,
         name,
         admins,
       };
-      // SI ES PRIVADO: verificar si ya existe el chat
-      const existingChat = await this.model.getOneByUsersID(userIds);
-
-      if (existingChat)
-        return res.status(409).json({ error: 'Chat already exist' });
 
       const newChat = await this.model.create(chatData);
       return res.status(201).json(newChat);
