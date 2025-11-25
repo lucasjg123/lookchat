@@ -1,7 +1,7 @@
 import { InputChat } from '../components/ui';
 import { HeaderChat } from '../components/headerChat';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
-import { useCallback, useContext, useEffect, useState } from 'react';
+import { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { useCrud } from '../hooks/useCrud'; // <-- importamos el hook
 import { AuthContext } from '../context/ContextProvider';
 import { useSocket } from '../hooks/useSocket.jsx';
@@ -18,6 +18,7 @@ export const Chat = () => {
   const { accessToken, usuarioAuth } = useContext(AuthContext);
   // usamos el hook genérico. articulos -> items retornados de useCrud()
   const { getByPath, create } = useCrud(backendUrl, accessToken);
+  const messagesEndRef = useRef(null);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -73,13 +74,24 @@ export const Chat = () => {
   const socket = useSocket(id, handleIncomingMessage);
   // func para mandar a /chats
 
+  // para mostrar siempre el scroll abajo
+  const scrollToBottom = () => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollTop = messagesEndRef.current.scrollHeight;
+    }
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
   return (
     <div className='flex flex-col h-screen'>
       {/* HEADER */}
       <HeaderChat back={handleBack} name={name} />
 
       {/* CHAT (scroll) */}
-      <div className='overflow-y-auto flex-1 px-4 py-2'>
+      <div className='overflow-y-auto flex-1 px-4 py-2' ref={messagesEndRef}>
         <ul>
           {messages.map((msg, i) => (
             <li
@@ -98,7 +110,10 @@ export const Chat = () => {
       </div>
 
       {/* INPUT */}
-      <form onSubmit={handleSubmit} className='p-3 border-t border-gray-700'>
+      <form
+        onSubmit={handleSubmit}
+        className='flex p-3 border-t border-gray-700'
+      >
         <InputChat
           name='message'
           type='text'
@@ -106,7 +121,7 @@ export const Chat = () => {
           placeholder='write your message...'
           onChange={(e) => setMessage(e.target.value)}
         />
-        <button type='submit' className='...'>
+        <button type='submit' className='pl-3 text-white'>
           Enviar
         </button>
       </form>

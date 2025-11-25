@@ -30,7 +30,7 @@ export class MessageModel {
 
   static async getByChatID(chatId) {
     try {
-      return Message.find({ chat: chatId }).sort({ createdAt: -1 }).limit(20);
+      return Message.find({ chat: chatId }).sort({ createdAt: 1 }).limit(20);
     } catch (error) {
       console.error('Error getting messages:', error);
       throw new Error('Failed to get messages');

@@ -17,8 +17,10 @@ export const HeaderChat = ({ back, name }) => {
           }
           className='size-12 flex-none rounded-full bg-gray-800 outline -outline-offset-1 outline-white/10'
         />
-        <div className='min-w-0 flex-auto'>
-          <p className='text-sm/6 font-semibold text-white'>{name}</p>
+        <div className='min-w-0 flex-auto ml-2'>
+          <p className='text-sm/6 font-semibold text-white'>
+            {name && name.charAt(0).toUpperCase() + name.slice(1)}
+          </p>
           {/* <p className='mt-1 truncate text-xs/5 text-gray-400'>{'asdf'}</p> */}
         </div>
       </div>

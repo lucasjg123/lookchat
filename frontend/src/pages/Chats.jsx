@@ -111,6 +111,7 @@ export const Chats = () => {
   return (
     <>
       <SearchBar
+        isFocused={isSearchFocused}
         onFocusChange={setIsSearchFocused}
         handleChange={handleChange}
       />
