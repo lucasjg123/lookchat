@@ -86,7 +86,7 @@ export const Chat = () => {
   }, [messages]);
 
   return (
-    <div className='flex flex-col h-screen'>
+    <div className='flex flex-col h-dvh'>
       {/* HEADER */}
       <HeaderChat back={handleBack} name={name} />
 
