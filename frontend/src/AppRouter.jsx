@@ -1,8 +1,8 @@
 // AppRouter.jsx
 import { useContext } from 'react';
 import { BrowserRouter, Route, Routes, Navigate } from 'react-router-dom';
-import { Login } from './pages/Login';
-import { Register } from './pages/Register';
+import { Login } from './pages/Login.jsx';
+import { Register } from './pages/Register.jsx';
 import { Home } from './pages/Home.jsx';
 import { Chats } from './pages/Chats.jsx';
 import { Chat } from './pages/Chat.jsx';
