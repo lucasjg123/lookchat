@@ -4,11 +4,12 @@ import { io } from 'socket.io-client';
 export function useSocket(chatId, onMessage) {
   // useRef mantiene la misma referencia entre renderizados
   const socketRef = useRef(null);
+  const WS_URL = import.meta.env.VITE_WEBSOCKET_URL;
 
   useEffect(() => {
     // crear socket
     console.log('🔌 Creando conexión WebSocket...');
-    const socket = io('http://localhost:3000');
+    const socket = io(WS_URL);
     socketRef.current = socket;
 
     // ⭐ Unirse al room del chat
