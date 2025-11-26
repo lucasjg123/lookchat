@@ -1,5 +1,5 @@
 import { InputChat } from '../components/ui';
-import { HeaderChat } from '../components/headerChat';
+import { HeaderChat } from '../components/HeaderChat';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { useCrud } from '../hooks/useCrud'; // <-- importamos el hook
