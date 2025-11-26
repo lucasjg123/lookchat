@@ -103,7 +103,12 @@ export const Chat = () => {
               }`}
             >
               <span className='text-md text-white mr-2'>{msg.content}</span>
-              <span className='text-xs text-gray-300'>{msg.createdAt}</span>
+              <span className='text-xs text-gray-300'>
+                {new Date(msg.createdAt).toLocaleTimeString([], {
+                  hour: '2-digit',
+                  minute: '2-digit',
+                })}
+              </span>
             </li>
           ))}
         </ul>

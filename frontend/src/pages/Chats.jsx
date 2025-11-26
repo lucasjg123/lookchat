@@ -116,7 +116,7 @@ export const Chats = () => {
         handleChange={handleChange}
       />
       {isSearchFocused ? (
-        <div className='ml-4 py-4 pl-1 mt-2'>
+        <div className='py-4 pl-1 mt-2'>
           {results.length > 0 ? (
             <ul role='list' className='divide-y divide-white/5'>
               {results.map((r, i) => (

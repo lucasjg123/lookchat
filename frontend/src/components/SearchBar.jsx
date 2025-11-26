@@ -4,7 +4,7 @@ import { InputChat } from './ui';
 export const SearchBar = ({ isFocused, onFocusChange, handleChange }) => {
   return (
     <>
-      <div className='w-full max-w-sm min-w-[200px] pr-4 mx-auto mt-7 flex items-center'>
+      <div className='w-full max-w-sm min-w-[200px] px-4 mx-auto mt-3 flex items-center'>
         {isFocused && (
           <div
             className='p-2 rounded-xl active:bg-gray-800 transition cursor-pointer select-none flex items-center justify-center mr-2'
